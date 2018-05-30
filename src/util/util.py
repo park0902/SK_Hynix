@@ -24,9 +24,9 @@ def _get_label_encoder(encoder_path):
         return None
 
 
-def _make_label_encoder(encoder_path, labels_value):
+def _make_label_encoder(encoder_path, values):
     encoder = preprocessing.LabelEncoder()
-    encoder.fit(labels_value)
+    encoder.fit(values)
     with open(encoder_path, 'wb') as f:
         pickle.dump(encoder, f)
     return encoder
@@ -103,21 +103,17 @@ def load_data_with_name(file_path, num_cols, cate_cols, label_col='', csv_sep=',
     data = data.astype(np.float32)
 
     if label_col == '':
-        return data
+        return data, parsed_data_df.columns
     else:
         labels = _get_label_arr(data_df, label_col)
         labels = labels.astype(np.int32)
-        #########################################################
-        #에러부분
-        #########################################################
-        label_names = [str(label) for label in list(set(label))]
-        #########################################################
+        label_names = [str(label) for label in list(set(labels))]
         data, labels = shuffle(data, labels, random_state=1)
         return data, labels, parsed_data_df.columns.tolist(), label_names
 
 
 def load_data_balance(file_path, num_cols, cate_cols, label_col='', csv_sep=',', **kwargs):
-    data_arr, labels_arr, feature_names, label_names = load_data_with_name(file_path, num_cols, cate_cols, label_col='', csv_sep=',', **kwargs)
+    data_arr, labels_arr, feature_names, label_names = load_data_with_name(file_path, num_cols, cate_cols, label_col='', csv_sep=csv_sep)
     N_data_arr = []
     Y_data_arr = []
 
@@ -149,12 +145,9 @@ def load_data_balance(file_path, num_cols, cate_cols, label_col='', csv_sep=',',
             kf = KFold(n_splits=n_split, random_state=1, shuffle=True)
             for train_index, test_index in kf.split(N_data_arr):
                 n_fold += 1
-                #########################################################
-                # 에러부분
-                #########################################################
-                N_labels = np.zeros((data_len), dtype=np.int32)
-                Y_labels = np.ones((data_len), dtype=np.int32)
-                data = np.append(N_data_arr[:data_len, :], Y_data_arr, axis=0)
+                N_labels = np.zeros((N_data_arr[test_index].shape[0]), dtype=np.int32)
+                Y_labels = np.ones((Y_data_arr.shape[0]), dtype=np.int32)
+                data = np.append(N_data_arr[test_index], Y_data_arr, axis=0)
                 labels = np.append(N_labels, Y_labels)
                 data, labels = shuffle(data, labels, random_state=1)
                 print(data.shape, labels.shape)
@@ -164,14 +157,11 @@ def load_data_balance(file_path, num_cols, cate_cols, label_col='', csv_sep=',',
         n_split = int(N_data_arr.shape[0] / Y_data_arr[0])
         print('n_split', n_split)
         kf = KFold(n_splits=n_split, random_state=1, shuffle=True)
-        for train_index, test_index in kf.split(N_data_arr):
+        for train_index, test_index in kf.split(Y_data_arr):
             n_fold += 1
-            #########################################################
-            # 에러부분
-            #########################################################
-            N_labels = np.zeros((data_len), dtype=np.int32)
-            Y_labels = np.ones((data_len), dtype=np.int32)
-            data = np.append(N_data_arr[:data_len, :], Y_data_arr, axis=0)
+            N_labels = np.zeros((N_data_arr.shape[0]), dtype=np.int32)
+            Y_labels = np.ones((Y_data_arr[test_index].shape[0]), dtype=np.int32)
+            data = np.append(N_data_arr, Y_data_arr[test_index], axis=0)
             labels = np.append(N_labels, Y_labels)
             data, labels = shuffle(data, labels, random_state=1)
             print(data.shape, labels.shape)
