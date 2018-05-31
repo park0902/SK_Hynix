@@ -113,7 +113,7 @@ def load_data_with_name(file_path, num_cols, cate_cols, label_col='', csv_sep=',
 
 
 def load_data_balance(file_path, num_cols, cate_cols, label_col='', csv_sep=',', **kwargs):
-    data_arr, labels_arr, feature_names, label_names = load_data_with_name(file_path, num_cols, cate_cols, label_col='', csv_sep=csv_sep)
+    data_arr, labels_arr, feature_names, label_names = load_data_with_name(file_path, num_cols, cate_cols, label_col=label_col, csv_sep=csv_sep)
     N_data_arr = []
     Y_data_arr = []
 
@@ -154,7 +154,7 @@ def load_data_balance(file_path, num_cols, cate_cols, label_col='', csv_sep=',',
                 data_list.append(data)
                 labels_list.append(labels)
     else:
-        n_split = int(N_data_arr.shape[0] / Y_data_arr[0])
+        n_split = int(Y_data_arr.shape[0] / N_data_arr.shape[0])
         print('n_split', n_split)
         kf = KFold(n_splits=n_split, random_state=1, shuffle=True)
         for train_index, test_index in kf.split(Y_data_arr):

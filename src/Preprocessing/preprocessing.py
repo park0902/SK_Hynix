@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn import preprocessing
 
 def prep_missing_val(X_train, X_test, y_train, y_test, mode=''):
-    print('before prep_missing_val() : ', X_train.shape, X_test.shape)
+    print('before prep_missing_val() : ', X_train.shape, y_train.shape)
     if mode == 'mean':
         col_mean = np.nanmean(X_train, axis=0)
         X_train_inds = np.where(np.isnan(X_train))
@@ -24,7 +24,7 @@ def prep_missing_val(X_train, X_test, y_train, y_test, mode=''):
         X_train_inds = list(set(X_train_inds[0]))
         X_train_inds.sort()
         X_train = np.delete(X_train, X_train_inds, axis=0)
-        X_train = np.delete(y_train, X_train_inds, axis=0)
+        y_train = np.delete(y_train, X_train_inds, axis=0)
         if X_test != []:
             X_test_inds = np.where(np.isnan(X_test))
             X_test_inds = list(set(X_test_inds[0]))
@@ -59,6 +59,13 @@ def standardization(X_train, X_test=[], mode='zscore', scaler=None):
             new_X_train = preprocessing.normalize(X_train)
             if X_test != []:
                 new_X_test = scaler.transform(X_test)
+            scaler = None
+        else:
+            print("'mode = %s' is not defined" %(mode))
+            new_X_train = X_train
+            new_X_test = X_test
+            scaler = None
+
     else:
         new_X_train = scaler.transform(X_train)
         if X_test != []:
