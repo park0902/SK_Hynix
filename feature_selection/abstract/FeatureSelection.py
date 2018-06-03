@@ -22,7 +22,7 @@ class FeatureSelect(metaclass=ABCMeta):
         joblib.dump(self.model, file_path)
         
     def load_model(self, file_path):
-        self.model -= joblib.load(file_path)
+        self.model = joblib.load(file_path)
         
     @staticmethod
     def get_selected_feature_names(feature_names, selected_ids):
