@@ -1,13 +1,9 @@
-from scipy import stats
 import numpy as np
-import pandas as pd
-from sklearn import preprocessing, svm
-from sklearn.metrics import confusion_matrix
+import sklearn.svm
+# import sklearn as sk
 import hyperopt
-import pickle
-import os
 
-from model.classifier.abstract.Classifier import Classifier
+from model.abstract.Classifier import Classifier
 
 
 class SVMClassifier(Classifier):
@@ -39,7 +35,7 @@ class SVMClassifier(Classifier):
         kernel = params.get('kernel', 'rbf')
         degree = params.get('degree', 3)
         gamma = params.get('gamma', 'auto')
-        self.model = svm.SVC(C=C, kernel=kernel, degree=degree, gamma=gamma, max_iter=max_iter)
+        self.model = sklearn.svm.SVC(C=C, kernel=kernel, degree=degree, gamma=gamma, max_iter=max_iter)
         return self.model.fit(data, labels)
 
     @staticmethod
@@ -47,7 +43,8 @@ class SVMClassifier(Classifier):
         C_list = np.logspace(-5, 9, num=15, base=2)
         gamma_list = np.logspace(-15, 3, num=19, base=2)
         degree_list = np.linspace(2, 15, num=14)
-        kernel_list = ['linear', 'rbf', 'poly', 'sigmoid']
+        # kernel_list = ['linear', 'rbf', 'poly', 'sigmoid']
+        kernel_list = ['rbf']
         return C_list, gamma_list, degree_list, kernel_list
 
     @staticmethod
@@ -56,10 +53,12 @@ class SVMClassifier(Classifier):
         return {
             'max_iter': max_iter,
             'type': hyperopt.hp.choice('type', [
-                {'C': hyperopt.hp.choice('C_1', C_list), 'kernel': kernel_list[0]},
-                {'C': hyperopt.hp.choice('C_2', C_list), 'kernel': kernel_list[1], 'gamma': hyperopt.hp.choice('gamma_2', gamma_list)},
-                {'C': hyperopt.hp.choice('C_3', C_list), 'kernel': kernel_list[2], 'gamma': hyperopt.hp.choice('gamma_3', gamma_list), 'degree': hyperopt.hp.choice('degree', degree_list)},
-                {'C': hyperopt.hp.choice('C_4', C_list), 'kernel': kernel_list[3], 'gamma': hyperopt.hp.choice('gamma_4', gamma_list)},
+                # {'C': hyperopt.hp.choice('C_1', C_list), 'kernel': kernel_list[0]},
+                # {'C': hyperopt.hp.choice('C_2', C_list), 'kernel': kernel_list[1], 'gamma': hyperopt.hp.choice('gamma_2', gamma_list)},
+                # {'C': hyperopt.hp.choice('C_3', C_list), 'kernel': kernel_list[2], 'gamma': hyperopt.hp.choice('gamma_3', gamma_list), 'degree': hyperopt.hp.choice('degree', degree_list)},
+                # {'C': hyperopt.hp.choice('C_4', C_list), 'kernel': kernel_list[3], 'gamma': hyperopt.hp.choice('gamma_4', gamma_list)},
+
+                {'C': hyperopt.hp.choice('C_2', C_list), 'kernel': kernel_list[0],'gamma': hyperopt.hp.choice('gamma_2', gamma_list)},
             ])
         }
 

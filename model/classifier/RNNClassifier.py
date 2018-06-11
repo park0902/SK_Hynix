@@ -1,7 +1,6 @@
 import numpy as np
-import pandas as pd
 import tensorflow as tf
-from model.classifier.abstract.Classifier import Classifier
+from model.abstract import Classifier
 import hyperopt
 import re
 
@@ -147,6 +146,21 @@ class RNNClassifier(Classifier):
                         },
 
                     ]
+                }, {
+                    'n_layers': 3,
+                    'layers': [
+                        {
+                            'num_units': hyperopt.hp.choice('num_units_3_1', num_units_list),
+                            'output_keep_prob': hyperopt.hp.choice('output_keep_prob_3_1', dropout_rate_list),
+                        },{
+                            'num_units': hyperopt.hp.choice('num_units_3_2', num_units_list),
+                            'output_keep_prob': hyperopt.hp.choice('output_keep_prob_3_2', dropout_rate_list),
+                        },{
+                            'num_units': hyperopt.hp.choice('num_units_3_3', num_units_list),
+                            'output_keep_prob': hyperopt.hp.choice('output_keep_prob_3_3', dropout_rate_list),
+                        },
+
+                    ]
                 }
             ]),
             'last_dense_layer_dropout_rate': hyperopt.hp.choice('last_dense_layer_dropout_rate', dropout_rate_list),
@@ -162,10 +176,13 @@ class RNNClassifier(Classifier):
             params['hidden_layers']['layers'] = [{}]
         elif len(best) == 6:
             params['hidden_layers']['n_layers'] = 2
-            params['hidden_layers']['layers'] = [{}]
+            params['hidden_layers']['layers'] = [{}, {}]
+        elif len(best) == 8:
+            params['hidden_layers']['n_layers'] = 3
+            params['hidden_layers']['layers'] = [{}, {}, {}]
         else:
             print('error')
-            raise Exception
+            exit()
 
         p_units = re.compile('num_units_[0-9]_[0-9]')
         p_output_keep_prob_ = re.compile('output_keep_prob_[0-9]_[0-9]')

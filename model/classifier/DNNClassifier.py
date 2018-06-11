@@ -1,7 +1,6 @@
 import numpy as np
-import pandas as pd
 import tensorflow as tf
-from model.classifier.abstract.Classifier import Classifier
+from model.abstract import Classifier
 import hyperopt
 import re
 
